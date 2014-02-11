@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+
+import re
+import ASTree
+import json
+import optparse
+
+class TemplateEngine(object):
+	"""Complies the input template into html"""
+	
+	def __init__(self, template_string):
+		self.template_string = template_string
+
+	def tokenize(self, template_string):
+		"""Generate the tokens by using simple regex"""
+		
+		VAR_TOKEN_START = '<\*'
+		VAR_TOKEN_END = '\*>'
+		TOK_REGEX = re.compile(r"(%s.*?%s)" % (
+		    VAR_TOKEN_START,
+		    VAR_TOKEN_END
+		))
+
+		return TOK_REGEX.split(template_string)
+
+	def compile(self, data):
+		"""Does all the steps to represent
+		   input source code in IR (intermediate representations)
+		   and finaly renders the html output
+		   1. Generate tokens from the template using regex
+		   2. Generate Abstract Syntax Tree for code
+		   3. Render html by resolving nodes of tree using data in context.
+		"""
+
+		self.tokens = self.tokenize(self.template_string)
+		self.ast =  ASTree.build_tree(self.tokens)
+		self.html_output = ASTree.render_html(self.ast, data)
+
+		return self.html_output
+
+def main():
+	p = optparse.OptionParser()
+	template, data, output = p.parse_args()[1]
+	
+	f = open(template, "r")
+	test = f.read()
+	f.close()
+
+	f = open(data, "r")
+	data = f.read()
+	f.close()
+	data = json.loads(data)
+
+	t = TemplateEngine(test).compile(data)
+	f = open(output, "w")
+	f.write(t)
+	f.close()
+
+if __name__ ==	'__main__':
+	main()
