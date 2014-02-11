@@ -9,7 +9,9 @@ Usage
 + output: path to the resultant output html
 
 Sample command to run.
+<code>
 $templater template.panoramatemplate data.json output.html
+</code>
 
 Assumption
 =========
